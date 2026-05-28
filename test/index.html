@@ -1,0 +1,2965 @@
+<!DOCTYPE html><html lang="en"><head><base href="/6a1586a4bff194ea998bfda5-preview/"><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content=""><title>test</title><link rel="icon" href="favicon.ico" type="image/x-icon"><script>
+sessionStorage.setItem("test", true);
+
+
+(function trackEverflowPageConversion() {
+  var s = document.createElement("script");
+  s.src = "https://www.mxj5trk.com/scripts/main.js";
+  s.onload = function () {
+    EF.click({
+      offer_id: EF.urlParameter("oid") || EF.urlParameter("offer_id"),
+      affiliate_id: EF.urlParameter("affid") || EF.urlParameter("aff_id"),
+      sub1: EF.urlParameter("sub1") || EF.urlParameter("aff_sub"),
+      sub2: EF.urlParameter("sub2") || EF.urlParameter("aff_sub2"),
+      sub3: EF.urlParameter("sub3") || EF.urlParameter("aff_sub3"),
+      sub4: EF.urlParameter("sub4") || EF.urlParameter("aff_sub4"),
+      sub5: EF.urlParameter("sub5") || EF.urlParameter("aff_sub5"),
+      uid: EF.urlParameter("uid") || EF.urlParameter("url_id"),
+      source_id: EF.urlParameter("source_id"),
+      transaction_id: EF.urlParameter("_ef_transaction_id"),
+    }).then(function () {
+      EF.conversion({
+        aid: 503,
+        adv_event_id: 6,
+      });
+    });
+  };
+  document.head.appendChild(s);
+})();
+
+
+const ALLOWED_AFFILIATE_IDS = [];
+
+let nextPageSlug = null;
+
+function handleUrlParams(params) {
+  const specialParams = ["p_dc", "p_tenbucksoff", "p_freeship", "p_freegift"];
+  const allowedDcValues = ["5", "10", "15", "20", "25"];
+  const currentAffId = params.get("affid") || sessionStorage.getItem("affid");
+  const discountsAllowed =
+    ALLOWED_AFFILIATE_IDS.length === 0 ||
+    (currentAffId !== null && ALLOWED_AFFILIATE_IDS.includes(currentAffId));
+  if (!discountsAllowed) {
+    specialParams.forEach((key) => sessionStorage.removeItem(key));
+  }
+  params.forEach((value, key) => {
+    const paramKey = `p_${key}`;
+    if (specialParams.includes(paramKey)) {
+      if (!discountsAllowed) return;
+      if (paramKey === "p_dc" && !allowedDcValues.includes(value)) return;
+      sessionStorage.setItem(paramKey, value);
+    } else {
+      sessionStorage.setItem(key, value);
+    }
+  });
+}
+
+if (localStorage.getItem('sK_r')) {
+  const cr = JSON.parse(localStorage.getItem('sK_r'));
+  const normalizePath = (rawPath) => {
+    if (!rawPath) return '';
+    try {
+      let p = String(rawPath);
+      p = p.split('?')[0].split('#')[0];
+      p = p.replace(/\/+$/, '');
+      p = p.replace(/\/index.html$/, '');
+      p = p.replace(/^\/+/, ''); p = p.replace(/^6a1586a4bff194ea998bfda5-preview\/?/, '');
+      return p;
+    } catch (e) {
+      console.error('Error normalizing path', e);
+      return '';
+    }
+  };
+  const pathname = window.location.pathname;
+  const cp = normalizePath(pathname || '/');
+  let nr = cr.find((r) => r.page === cp);
+  if (nr) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const baseNext = pathname.endsWith("/index.html") ? nr.next + "/index.html" : nr.next || '';
+    const withQuery = urlParams && urlParams.toString()
+      ? baseNext + '?' + urlParams.toString()
+      : baseNext;
+    nextPageSlug = withQuery && !withQuery.startsWith('/') ? '/6a1586a4bff194ea998bfda5-preview/' + withQuery : withQuery;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      MVMT.init('6a1586a4bff194ea998bfda5', 'Home')
+      const ctaButtons = document.querySelectorAll("[data-cta-button]");
+      ctaButtons.forEach((button) => {
+        button.href = nextPageSlug;
+        button.addEventListener("click", (e) => {
+          e.preventDefault();
+          MVMT.track("CTA_CLICK", {
+            page: "test",
+            page_type: "Home",
+            page_url: window.location.href,
+          });
+          window.location.href = nextPageSlug;
+        });
+      });
+    });
+  }
+  
+}
+
+const route = async () => {
+  if (localStorage.getItem('sK_r')) return JSON.parse(localStorage.getItem('sK_r'));
+  const sessionId = MVMT.getSessionId() || localStorage.getItem("mvmt_session_id") || "";
+  const url = 'https://func-ab-test-events-dev-001.azurewebsites.net/api/checkRoute?id=6a1586a4bff194ea998bfda5&v=177995914493049&sessionId='+sessionId;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    localStorage.setItem('sK_r', JSON.stringify(data));
+    return data;
+  } catch (error) {
+    console.error('There was a problem with the fetch operation:', error);
+    throw error;
+  }
+}
+const nextPage = async () => {
+  let cr = await route();
+  if (!cr) throw new Error('Route not found');
+  const normalizePath = (rawPath) => {
+    if (!rawPath) return '';
+    try {
+      let p = String(rawPath);
+      p = p.split('?')[0].split('#')[0];
+      p = p.replace(/\/+$/, '');
+      p = p.replace(/\/index.html$/, '');
+      p = p.replace(/^\/+/, ''); p = p.replace(/^6a1586a4bff194ea998bfda5-preview\/?/, '');
+      return p;
+    } catch (e) {
+      console.error('Error normalizing path', e);
+      return '';
+    }
+  };
+  const pathname = window.location.pathname;
+  const cp = normalizePath(pathname || '/');
+  let nr = cr.find((r) => r.page === cp);
+  if (!nr) {
+    try {
+      localStorage.removeItem('sK_r');
+    } catch (e) {
+      // ignore storage errors
+    }
+    cr = await route();
+    if (!cr) return '';
+    nr = cr.find((r) => r.page === cp);
+  }
+  const urlParams = new URLSearchParams(window.location.search);
+  if (!nr) return '';
+  const baseNext = pathname.endsWith("/index.html") ? nr.next + "/index.html" : nr.next || '';
+  const withQuery = urlParams && urlParams.toString()
+    ? baseNext + '?' + urlParams.toString()
+    : baseNext;
+  const absolute = withQuery && !withQuery.startsWith('/') ? '/6a1586a4bff194ea998bfda5-preview/' + withQuery : withQuery;
+  return absolute;
+}
+const urlParams = new URLSearchParams(window.location.search);
+handleUrlParams(urlParams);
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("click", (event) => {
+    const elementClasses = event.target.className;
+    const elementId = event.target.id;
+
+    const windowPosition = window.scrollY;
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    const elementPosition = event.clientX;
+    const elementTop = event.clientY;
+
+    MVMT.track("PAGE_CLICK", {
+      page: "test",
+      page_type: "Home",
+      page_url: window.location.href,
+      element_classes: elementClasses,
+      element_id: elementId,
+      window_position: windowPosition,
+      window_width: windowWidth,
+      window_height: windowHeight,
+      element_position: elementPosition,
+      element_top: elementTop,
+    });
+  });
+
+  const params = new URLSearchParams(window.location.search);
+  const elementsToHideSelectors = Array.from(params.entries()).reduce((selectors, [key, value]) => {
+      if (value === "n" || value === "none") {
+          selectors.push(`[data-url-param-${key}]`);
+      }
+      return selectors;
+  }, []);
+  if (elementsToHideSelectors.length) {
+      document.querySelectorAll(elementsToHideSelectors.join(",")).forEach(el => el.style.display = "none");
+  }
+  const topBanner = document.querySelector("[data-url-param-colorbanner]");
+  if (topBanner && params.has("colorbanner")) topBanner.style.backgroundColor = params.get("colorbanner") || "red";
+});
+
+const getGlobals = async () => {
+  const response = await fetch("https://stdigitalmvmtdev001.blob.core.windows.net/globals/develop/default");
+  const data = await response.json();
+  return data;
+};
+
+document.addEventListener("DOMContentLoaded", async() => {
+
+  if (nextPageSlug === null || nextPageSlug.length === 0) {
+    nextPageSlug = await nextPage();
+    const ctaButtons = document.querySelectorAll("[data-cta-button]");
+    ctaButtons.forEach((button) => {
+      button.href = nextPageSlug;
+      button.addEventListener("click", (e) => {
+        e.preventDefault();
+        MVMT.track("CTA_CLICK", {
+          page: "test",
+          page_type: "Home",
+          page_url: window.location.href,
+        });
+        window.location.href = nextPageSlug;
+      });
+    });
+  }
+    
+  const globals = await getGlobals();
+  const globalAttribute = "data-holder-global"
+  const globalElements = document.querySelectorAll(`[${globalAttribute}]`);
+  if (globalElements) {
+    globalElements.forEach((element) => {
+      const data = globals[element.getAttribute(globalAttribute)];
+      element.innerText = data.label;
+      if (data.type === "url") {
+        element.href = data.src;
+      }
+    })
+  }
+
+  // Track all elements with data-sparqcms-component-id on page view
+  const sparqcmsComponentElements = document.querySelectorAll("[data-sparqcms-component-id]");
+  const componentIds = [];
+  sparqcmsComponentElements.forEach(element => {
+    componentIds.push(element.getAttribute("data-sparqcms-component-id"));
+  });
+  
+  if (componentIds.length > 0) {
+      MVMT.track("PAGE_VIEW_COMPONENTS", {
+      page: "test",
+      page_type: "Home",
+      page_url: window.location.href,
+      component_ids: componentIds
+    });
+  }
+});
+  
+  </script>
+<script>
+  const offerName = 'Vi-Shift';
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    'event': 'pageView', 
+    'offer': 'Vi-Shift',
+    'customer_id':sessionStorage.getItem("customerId") || undefined,
+    'page':{
+      'type':'Home',
+      'isReload':performance.getEntriesByType("navigation")[0].type === "reload",
+      'isExclude':false
+    },
+    'experiment':{
+      'id':undefined,
+      'name':undefined,
+      'variation':undefined
+    }
+  });
+</script>
+  <link rel="stylesheet" href="styles/test.css" /><style>@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,700&display=swap");
+</style><style>@layer imported{:root {
+        --color-primary: #d98772;
+        --color-primary-dark: #c96e5d;
+        --color-text-dark: #1a1a1a;
+        --color-text-light: #fdfdfd;
+        --color-text-secondary: rgba(26, 26, 26, 0.9);
+        --color-background: #fdfdfd;
+        --color-background-alt: #f0ebdf;
+        --color-accent-light: #edc9b6;
+        --color-accent-medium: #dab3a9;
+
+        --font-main: "Fraunces", serif;
+      }
+
+      body {
+        font-family: var(--font-main);
+        background-color: var(--color-background);
+        color: var(--color-text-dark);
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: inherit;
+      }
+
+      .cookie-banner-overlay {
+        z-index: 99999 !important;
+        gap: 1.5rem !important;
+      }
+
+      .cookie-banner-overlay [data-cookie-btns] {
+        gap: 1rem !important;
+      }
+
+      @media (max-width: 1200px) {
+        .cookie-banner-overlay {
+          width: 90% !important;
+          max-width: 400px !important;
+          left: 50% !important;
+          right: auto !important;
+          top: 50% !important;
+          bottom: auto !important;
+          transform: translate(-50%, -50%) !important;
+          height: auto !important;
+          max-height: 80vh;
+          padding: 1.5rem !important;
+          margin: 0 !important;
+          gap: 1.5rem !important;
+        }
+
+        .cookie-banner-overlay [data-cookie-btns] {
+          gap: 1rem !important;
+        }
+      }
+
+      .page-wrapper {
+        max-width: 1600px;
+        margin: 0 auto;
+        overflow: hidden;
+      }
+
+      .container {
+        width: 100%;
+        padding-left: 120px;
+        padding-right: 120px;
+        margin: 0 auto;
+      }
+
+      .btn {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        padding: 16px 32px;
+        border-radius: 100px;
+        font-family: var(--font-main);
+        font-weight: 700;
+        font-size: 18px;
+        line-height: 1.4;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.1),
+          0px 4px 6px -1px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary {
+        background: linear-gradient(49deg,
+            var(--color-primary) 0%,
+            var(--color-primary-dark) 113.22%);
+        color: var(--color-text-light);
+      }
+
+      .btn-secondary {
+        background-color: transparent;
+        color: var(--color-text-dark);
+        border: 1px solid var(--color-text-dark);
+      }
+
+      .header-container .btn.btn-primary {
+        font-size: 16px;
+      }
+
+      .cta-item .btn.btn-primary {
+        font-size: 16px;
+      }
+
+      .cta-item .btn.btn-secondary {
+        font-size: 16px;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0px 4px 8px -2px rgba(0, 0, 0, 0.15),
+          0px 6px 12px -1px rgba(0, 0, 0, 0.15);
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      p {
+        margin: 0;
+      }
+
+      @media (max-width: 1200px) {
+        .container {
+          padding-left: 60px;
+          padding-right: 60px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding-left: 20px;
+          padding-right: 20px;
+        }
+      }
+
+      .header-section {
+        background-color: var(--color-background);
+        box-shadow: 0px 12px 26px 0px rgba(222, 222, 222, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 92px;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        text-decoration: none;
+      }
+
+      .logo img:first-child {
+        width: 65.17px;
+        height: 50.03px;
+      }
+
+      .logo img:last-child {
+        width: 125.57px;
+        height: 50.03px;
+      }
+
+      .header-nav {
+        display: flex;
+        align-items: center;
+        gap: 32px;
+      }
+
+      .menu-toggle {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+      }
+
+      .menu-toggle img {
+        width: 32px;
+        height: 32px;
+      }
+
+      @media (max-width: 768px) {
+        .header-nav .btn {
+          display: none;
+        }
+
+        .logo {
+          gap: 2px;
+        }
+
+        .logo img:first-child {
+          width: 33.9px;
+          height: 26.03px;
+        }
+
+        .logo img:last-child {
+          width: 65.32px;
+          height: 26.03px;
+        }
+      }
+
+      /* Mobile Menu Modal */
+      .mobile-menu-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background-color: var(--color-background);
+        z-index: 2000;
+        overflow-y: auto;
+      }
+
+      .mobile-menu-modal.active {
+        display: flex;
+      }
+
+      .mobile-menu-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 100vh;
+        width: 100%;
+        padding: 20px 40px 40px 40px;
+      }
+
+      .mobile-menu-top {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 100px;
+        flex: 1;
+        justify-content: flex-start;
+      }
+
+      .mobile-menu-close {
+        align-self: flex-end;
+        background: none;
+        border: 1px solid var(--color-text-dark);
+        border-radius: 50%;
+        cursor: pointer;
+        padding: 0;
+        width: 26px;
+        height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .mobile-menu-close img {
+        width: 26px;
+        height: 26px;
+      }
+
+      .mobile-menu-nav {
+        width: 173px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .mobile-menu-item {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        border-bottom: 1px solid #edc9b6;
+      }
+
+      .mobile-menu-link {
+        font-size: 18px;
+        line-height: 1.4;
+        font-weight: 700;
+        color: var(--color-text-dark);
+        text-decoration: none;
+        padding: 15px 10px;
+        border-bottom: 1px solid #edc9b6;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        background: none;
+        border-left: none;
+        border-right: none;
+        border-top: none;
+        cursor: pointer;
+        font-family: var(--font-main);
+      }
+
+      .mobile-menu-item>.mobile-menu-link {
+        justify-content: flex-start;
+        gap: 24px;
+        border-bottom: none;
+        padding-bottom: 15px;
+      }
+
+      .mobile-menu-item.expanded>.mobile-menu-link {
+        padding-bottom: 12px;
+      }
+
+      .expand-icon {
+        width: 19.5px;
+        height: 19.5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        position: relative;
+      }
+
+      .expand-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+      }
+
+      .mobile-menu-submenu {
+        display: none;
+        flex-direction: column;
+        gap: 12px;
+        padding-bottom: 15px;
+      }
+
+      .mobile-menu-item.expanded .mobile-menu-submenu {
+        display: flex;
+      }
+
+      .mobile-menu-item.expanded .expand-icon-plus {
+        display: none;
+      }
+
+      .mobile-menu-item.expanded .expand-icon-minus {
+        display: block !important;
+      }
+
+      .mobile-menu-item:not(.expanded) .expand-icon-plus {
+        display: block;
+      }
+
+      .mobile-menu-item:not(.expanded) .expand-icon-minus {
+        display: none !important;
+      }
+
+      .mobile-menu-sublink {
+        font-size: 18px;
+        font-weight: 400;
+        color: var(--color-text-dark);
+        text-decoration: none;
+        padding: 0 10px;
+      }
+
+      .mobile-menu-bottom {
+        display: flex;
+        justify-content: center;
+      }
+
+      .mobile-menu-bottom .btn {
+        width: auto;
+        font-size: 16px;
+      }
+
+      /* Desktop Menu Modal - Right Side Panel */
+      @media (min-width: 769px) {
+        .mobile-menu-modal {
+          display: flex !important;
+          background-color: rgba(0, 0, 0, 0);
+          backdrop-filter: blur(0px);
+          transition: background-color 0.3s ease-in-out,
+            backdrop-filter 0.3s ease-in-out;
+          pointer-events: none;
+          overflow: hidden;
+        }
+
+        .mobile-menu-modal.active {
+          background-color: rgba(0, 0, 0, 0.5);
+          backdrop-filter: blur(4px);
+          pointer-events: auto;
+        }
+
+        .mobile-menu-content {
+          position: fixed;
+          top: 0;
+          right: 0;
+          width: 400px;
+          max-width: 90vw;
+          height: 100vh;
+          max-height: 100vh;
+          background-color: var(--color-background);
+          box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+          padding: 40px;
+          overflow-y: auto;
+          overflow-x: hidden;
+          transform: translateX(100%);
+          transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          margin-left: auto;
+          will-change: transform;
+          pointer-events: auto;
+        }
+
+        .mobile-menu-modal.active .mobile-menu-content {
+          transform: translateX(0);
+        }
+
+        .mobile-menu-top {
+          gap: 80px;
+        }
+
+        .mobile-menu-nav {
+          width: 173px;
+        }
+      }
+
+      /* CSS for section section:Hero */
+      .hero-section {
+        padding-top: 80px;
+        padding-bottom: 150px;
+      }
+
+      .hero-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 70px;
+      }
+
+      .hero-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        max-width: 796px;
+      }
+
+      .hero-content-top {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .hero-rating {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+      }
+
+      .stars {
+        display: flex;
+        gap: 5px;
+      }
+
+      .stars img {
+        width: 17px;
+        height: 16px;
+      }
+
+      .hero-rating p {
+        font-size: 16px;
+        letter-spacing: -0.5px;
+      }
+
+      .hero-headline {
+        font-size: 56px;
+        font-weight: 700;
+        line-height: 1.2;
+        color: var(--color-text-dark);
+      }
+
+      .hero-headline .highlight {
+        background: linear-gradient(45deg, #d98772, #c96e5d);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-fill-color: transparent;
+      }
+
+      .hero-description {
+        font-size: 24px;
+        line-height: 1.4;
+        color: var(--color-text-secondary);
+        max-width: 796px;
+      }
+
+      .hero-cta-group {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+      }
+
+      .cta-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        width: 351px;
+        text-align: center;
+      }
+
+      .cta-item .btn {
+        width: 100%;
+        min-width: 250px;
+      }
+
+      .cta-caption {
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--color-text-secondary);
+        max-width: 351px;
+      }
+
+      .hero-image-wrapper {
+        flex-shrink: 0;
+      }
+
+      .hero-image {
+        width: 500px;
+        height: 576px;
+        object-fit: cover;
+        border-radius: 24px;
+        box-shadow: 0px 15px 20px 0px rgba(0, 0, 0, 0.05);
+      }
+
+      @media (max-width: 1200px) {
+        .hero-container {
+          flex-direction: column;
+          text-align: center;
+          gap: 40px;
+        }
+
+        .hero-content {
+          align-items: center;
+        }
+
+        .hero-cta-group {
+          flex-direction: column;
+          width: 100%;
+        }
+
+        .cta-item {
+          width: 100%;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .hero-section {
+          padding-top: 40px;
+          padding-bottom: 0;
+        }
+
+        .hero-headline {
+          font-size: 40px;
+          text-align: left;
+        }
+
+        .hero-description {
+          font-size: 18px;
+          text-align: left;
+        }
+
+        .hero-image {
+          width: 100%;
+          height: auto;
+        }
+      }
+
+      /* CSS for section section:Benefits */
+      .benefits-section {
+        padding-top: 75px;
+        padding-bottom: 150px;
+      }
+
+      .benefits-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 50px;
+      }
+
+      .benefits-title {
+        font-size: 48px;
+        font-weight: 700;
+        line-height: 1.2;
+        color: var(--color-text-dark);
+      }
+
+      .benefits-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+        width: 100%;
+        justify-content: center;
+      }
+
+      .benefit-card {
+        background: linear-gradient(269.01deg,
+            var(--color-accent-light) 0.66%,
+            var(--color-accent-medium) 102.39%);
+
+        border-radius: 24px;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 24px;
+        box-shadow: 0px 15px 20px 0px rgba(0, 0, 0, 0.05);
+        min-width: 260px;
+        max-width: 340px;
+        flex: 1 1 calc((100% - 72px) / 4);
+      }
+
+      .benefit-card-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 8px;
+      }
+
+      .benefit-icon {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .benefit-card-title {
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1.4;
+        color: var(--color-text-secondary);
+      }
+
+      .benefit-card-text {
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--color-text-secondary);
+        letter-spacing: -0.5px;
+      }
+
+      .btn-primary .benefits {
+        font-size: 18px;
+      }
+
+      @media (max-width: 1370px) {
+        .benefit-card {
+          flex: 1 1 calc((100% - 24px) / 2);
+          max-width: 380px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .benefits-section {
+          padding-top: 100px;
+          padding-bottom: 70px;
+        }
+
+        .benefits-title {
+          font-size: 34px;
+        }
+
+        .benefit-card {
+          flex: 1 1 100%;
+          max-width: 400px;
+        }
+
+        .benefits-container {
+          gap: 34px;
+        }
+      }
+
+      /* CSS for section section:Support */
+      .support-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 40px;
+        text-align: center;
+      }
+
+      .support-title-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 50px;
+      }
+
+      .support-title {
+        font-size: 48px;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .support-subtitle {
+        font-size: 20px;
+        line-height: 1.5;
+        color: var(--color-text-secondary);
+        max-width: 762px;
+      }
+
+      .video-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+      }
+
+      .video-wrapper {
+        max-height: 741px;
+        position: relative;
+        width: 100%;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0px 15px 20px 0px rgba(0, 0, 0, 0.05);
+        background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2));
+      }
+
+      .video-wrapper::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2));
+        pointer-events: none;
+      }
+
+      .video-thumbnail {
+        width: 100%;
+        height: auto;
+        display: block;
+        transform: translateY(-22%);
+      }
+
+      .play-button {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 162.5px;
+        height: 104px;
+        background: rgba(217, 135, 114, 0.75);
+        cursor: pointer;
+        padding: 0;
+        border: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 3;
+      }
+
+      .play-button img {
+        width: 100%;
+        height: 100%;
+      }
+
+      .video-caption {
+        font-size: 24px;
+        line-height: 1.4;
+        color: #7e7e7e;
+      }
+
+      .video-caption .highlight {
+        color: var(--color-primary);
+      }
+
+      @media (max-width: 1200px) {
+        .video-thumbnail {
+          transform: none;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .support-container {
+          padding-top: 30px;
+          padding-bottom: 30px;
+          gap: 34px;
+        }
+
+        .support-title-wrapper {
+          gap: 34px;
+        }
+
+        .support-title {
+          font-size: 34px;
+        }
+
+        .support-subtitle {
+          font-size: 20px;
+        }
+
+        .video-wrapper {
+          height: 700px;
+          max-height: 700px;
+        }
+
+        .video-thumbnail {
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .video-caption {
+          font-size: 24px;
+        }
+
+        .benefit-card-text {
+          font-size: 16px;
+          line-height: 1.4;
+        }
+      }
+
+      /* CSS for section section:Partners */
+      .partners-section {
+        padding-top: 75px;
+        padding-bottom: 150px;
+      }
+
+      .partners-container {
+        position: relative;
+        padding: 40px 120px;
+        isolation: isolate;
+        background: #fdfdfd;
+        flex: none;
+        order: 0;
+        align-self: stretch;
+        flex-grow: 0;
+      }
+
+      .partners-viewport {
+        overflow: hidden;
+      }
+
+      .partners-track {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+        gap: 100px;
+        animation: partners-marquee 60s linear infinite;
+      }
+
+      .partners-container img {
+        flex-shrink: 0;
+        max-height: 66px;
+        object-fit: contain;
+      }
+
+      .partners-container::before,
+      .partners-container::after {
+        content: "";
+        position: absolute;
+        top: 4px;
+        width: 139px;
+        height: 150px;
+        pointer-events: none;
+      }
+
+      .partners-container::before {
+        left: 120px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #ffffff 100%);
+        transform: rotate(90deg);
+        z-index: 4;
+      }
+
+      .partners-container::after {
+        right: 120px;
+        background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0) 100%);
+        transform: rotate(90deg);
+        z-index: 5;
+      }
+
+      @media (max-width: 1000px) {
+        .partners-section {
+          padding-top: 40px;
+          padding-bottom: 70px;
+        }
+
+        .partners-container {
+          padding: 40px 30px;
+        }
+
+        .partners-container img {
+          max-height: 35px;
+        }
+
+        .partners-container::before {
+          left: 30px;
+        }
+
+        .partners-container::after {
+          right: 30px;
+        }
+
+        .partners-container::before,
+        .partners-container::after {
+          width: 60px;
+          height: 80px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .partners-section {
+          padding-top: 25px;
+          padding-bottom: 50px;
+        }
+
+        .partners-container {
+          padding: 13px 10px;
+        }
+
+        .partners-track {
+          gap: 50px;
+          animation: partners-marquee 40s linear infinite;
+        }
+
+        .partners-container img {
+          max-height: 22px;
+        }
+
+        .partners-container::before {
+          left: 10px;
+        }
+
+        .partners-container::after {
+          right: 10px;
+        }
+
+        .partners-container::before,
+        .partners-container::after {
+          width: 70px;
+          height: 80px;
+        }
+      }
+
+      @keyframes partners-marquee {
+        0% {
+          transform: translateX(0);
+        }
+
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+
+      /* CSS for section section:Design */
+      .design-section {
+        padding-bottom: 150px;
+      }
+
+      .design-container {
+        display: flex;
+        align-items: center;
+        gap: 76px;
+        justify-content: center;
+      }
+
+      .design-image-wrapper {
+        flex: 0 0 462px;
+      }
+
+      .design-image {
+        width: 100%;
+        height: 690px;
+        max-height: 690px;
+        object-fit: cover;
+        border-radius: 24px;
+        box-shadow: 0px 15px 20px 0px rgba(0, 0, 0, 0.05);
+      }
+
+      .design-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 50px;
+        max-width: 850px;
+      }
+
+      .design-title {
+        font-size: 48px;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .design-features {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+      }
+
+      .feature-item {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+      }
+
+      .feature-icon {
+        width: 34px;
+        height: 34px;
+        flex-shrink: 0;
+      }
+
+      .feature-text {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .feature-text h3 {
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1.4;
+      }
+
+      .feature-text p {
+        font-size: 18px;
+        line-height: 1.4;
+        color: var(--color-text-secondary);
+      }
+
+      @media (max-width: 1200px) {
+        .design-section {
+          padding-bottom: 100px;
+          padding-top: 40px;
+        }
+
+        .design-container {
+          flex-direction: column;
+        }
+
+        .design-content {
+          order: 1;
+          gap: 34px;
+        }
+
+        .design-image-wrapper {
+          order: 2;
+        }
+
+        .design-image {
+          height: auto;
+        }
+
+        .design-title {
+          font-size: 34px;
+        }
+
+        .design-features {
+          gap: 0;
+        }
+
+        .feature-item {
+          display: grid;
+          grid-template-columns: 68px 1fr;
+          grid-template-rows: auto auto;
+          gap: 12px 12px;
+          padding-top: 24px;
+          padding-bottom: 24px;
+          border-bottom: 1px solid var(--color-primary);
+        }
+
+        .feature-item:last-child {
+          border-bottom: none;
+        }
+
+        .feature-icon {
+          width: 68px;
+          height: 68px;
+          grid-row: 1;
+          grid-column: 1;
+        }
+
+        .feature-text {
+          display: contents;
+        }
+
+        .feature-text h3 {
+          grid-row: 1;
+          grid-column: 2;
+          margin: 0;
+          align-self: center;
+        }
+
+        .feature-text p {
+          grid-row: 2;
+          grid-column: 1 / -1;
+          margin: 0;
+        }
+      }
+
+      /* CSS for section section:Results */
+      .results-card {
+        max-width: 1467px;
+        margin: 0 auto;
+        background: linear-gradient(214deg, #f0ebdf 0%, #fef5e6 115.53%);
+        border-radius: 32px;
+        padding: 50px 100px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        box-shadow: 0px 15px 20px 0px rgba(0, 0, 0, 0.05);
+      }
+
+      .results-text {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        max-width: 664px;
+      }
+
+      .results-pre-title {
+        font-size: 18px;
+        line-height: 1.4;
+      }
+
+      .results-title {
+        font-size: 48px;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .results-graphic-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 32px;
+      }
+
+      .results-graphic {
+        position: relative;
+        width: 470px;
+        overflow-x: clip;
+        overflow-y: visible;
+      }
+
+      .results-graphic-wrapper {
+        overflow: visible;
+      }
+
+      .results-graphic::before,
+      .results-graphic::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 24px;
+        z-index: 10;
+        pointer-events: none;
+      }
+
+      .results-graphic::before {
+        left: 0;
+        background: linear-gradient(to right, #f5eee1, rgba(254, 245, 230, 0));
+      }
+
+      .results-graphic::after {
+        right: 0;
+        background: linear-gradient(to left, #f2ece0, rgba(254, 245, 230, 0));
+      }
+
+      .carousel-track {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        transition: transform 0.5s ease-in-out;
+      }
+
+      .carousel-track-fade {
+        display: grid;
+        width: 100%;
+        min-height: 453px;
+      }
+
+      .carousel-slide {
+        min-width: 100%;
+      }
+
+      .carousel-track-fade .carousel-slide {
+        grid-area: 1 / 1;
+        opacity: 0;
+        transition: opacity 1.2s ease-in-out, transform 1.2s ease-in-out;
+        z-index: 0;
+      }
+
+      /* Initial state for slides to the right */
+      .carousel-track-fade .carousel-slide:not(.active) {
+        transform: translateX(100%);
+      }
+
+      /* Active slide is visible and centered */
+      .carousel-track-fade .carousel-slide.active {
+        opacity: 1;
+        transform: translateX(0);
+        z-index: 1;
+      }
+
+      /* Exiting slide moves to the left */
+      .carousel-track-fade .carousel-slide.exit-left {
+        transform: translateX(-100%);
+        opacity: 0;
+      }
+
+      /* Entering slide starts from the right (default) */
+      /* Exiting slide moving right (for prev button) */
+      .carousel-track-fade .carousel-slide.exit-right {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+
+      /* Entering slide starts from the left (for prev button) */
+      .carousel-track-fade .carousel-slide.enter-left {
+        transform: translateX(-100%);
+      }
+
+      .results-image {
+        width: 434px;
+        height: auto;
+        display: block;
+        object-fit: contain;
+        margin: 0 auto;
+      }
+
+      .results-disclaimer {
+        position: absolute;
+        top: 425px;
+        left: 65px;
+        width: 210px;
+        font-size: 11px;
+        font-weight: 400;
+        line-height: 1.4;
+        color: var(--color-text-secondary);
+        pointer-events: none;
+        letter-spacing: -0.5px;
+        z-index: 2;
+        /* Ensure it sits above the image */
+      }
+
+      /* Make carousel slide relative so absolute children move with it */
+      .carousel-slide {
+        position: relative;
+        min-width: 100%;
+      }
+
+      .results-controls {
+        display: flex;
+        gap: 12px;
+      }
+
+      .control-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .control-btn:disabled,
+      .control-btn.disabled {
+        cursor: default;
+        opacity: 0.3;
+        filter: grayscale(100%);
+      }
+
+      .results-stat {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 20px;
+        width: 90%;
+      }
+
+      .percentage {
+        font-size: 56px;
+        font-weight: 700;
+        color: var(--color-text-dark);
+        flex-shrink: 0;
+      }
+
+      .stat-text {
+        font-size: 16px;
+        line-height: 1.4;
+        color: var(--color-text-dark);
+      }
+
+      .results-controls {
+        display: flex;
+        gap: 17px;
+      }
+
+      .control-btn {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+      }
+
+      .control-btn img {
+        width: 48px;
+        height: 48px;
+      }
+
+      @media (max-width: 1200px) {
+        .results-card {
+          flex-direction: column;
+          text-align: center;
+          gap: 25px;
+          padding: 50px 20px;
+          background: linear-gradient(194.65deg, #f0ebdf 54.51%, #fef5e6 77.86%);
+        }
+
+        .results-graphic::before,
+        .results-graphic::after {
+          display: none;
+        }
+
+        .results-graphic-wrapper {
+          gap: 25px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .results-text {
+          padding: 0 10px;
+          text-align: left;
+        }
+
+        .results-title {
+          font-size: 34px;
+        }
+
+        .control-btn img {
+          width: 41px;
+          height: 41px;
+        }
+
+        .results-graphic-wrapper {
+          width: 100%;
+          display: flex;
+          justify-content: center;
+        }
+
+        .results-graphic {
+          width: 300px;
+          max-width: 100%;
+          height: 300px;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .carousel-track-fade {
+          width: 100%;
+          height: 100%;
+          position: relative;
+        }
+
+        .carousel-slide {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0 10px;
+        }
+
+        .results-image {
+          width: 300px;
+          height: 300px;
+          object-fit: contain;
+          display: block;
+          margin: 0;
+          position: relative;
+        }
+
+        .results-disclaimer {
+          position: absolute;
+          top: 250px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 260px;
+          font-size: 10px;
+          text-align: center;
+          padding: 0 10px;
+        }
+
+        .results-stat {
+          position: relative;
+          flex-direction: column;
+          text-align: center;
+          background: rgba(255, 255, 255, 0.5);
+          border-radius: 12px;
+          margin-top: -50px;
+        }
+
+        .carousel-track-fade {
+          min-height: 0;
+        }
+
+        .carousel-track-fade .carousel-slide:not(.active) {
+          transform: translateX(120%);
+        }
+
+        .carousel-track-fade .carousel-slide.exit-left {
+          transform: translateX(-120%);
+        }
+
+        .carousel-track-fade .carousel-slide.exit-right {
+          transform: translateX(120%);
+        }
+
+        .carousel-track-fade .carousel-slide.enter-left {
+          transform: translateX(-120%);
+        }
+      }
+
+      /* CSS for section section:HowItWorks */
+      .how-it-works-section {
+        padding: 150px 0;
+      }
+
+      .how-it-works-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 70px;
+      }
+
+      .how-it-works-title {
+        font-size: 48px;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .steps-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+        width: 100%;
+        justify-content: center;
+      }
+
+      .step-card {
+        position: relative;
+        background-color: var(--color-background);
+        border: 2px solid var(--color-primary);
+        border-radius: 24px;
+        padding: 60px 40px 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 24px;
+        max-width: 430px;
+        flex: 1 1 calc((100% - 48px) / 3);
+        box-shadow: 0px 15px 20px 0px rgba(0, 0, 0, 0.05);
+      }
+
+      .step-badge {
+        position: absolute;
+        top: -28px;
+        background: linear-gradient(49deg,
+            var(--color-primary) 0%,
+            var(--color-primary-dark) 113.22%);
+        color: var(--color-text-light);
+        font-size: 30px;
+        line-height: 1.4;
+        padding: 7px 20px;
+        border-radius: 67px;
+      }
+
+      .step-icon {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .step-content {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .step-title {
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.5;
+        color: var(--color-text-secondary);
+      }
+
+      .step-text {
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--color-text-secondary);
+      }
+
+      @media (max-width: 992px) {
+        .step-card {
+          flex: 1 1 100%;
+          max-width: 450px;
+          padding: 60px 40px 40px;
+        }
+
+        .how-it-works-section {
+          padding: 100px 0;
+        }
+
+        .how-it-works-title {
+          font-size: 34px;
+        }
+
+        .steps-grid {
+          gap: 60px;
+        }
+      }
+
+      /* CSS for section section:Comparison */
+      .comparison-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 50px;
+      }
+
+      .comparison-title {
+        font-size: 48px;
+        font-weight: 700;
+        line-height: 1.2;
+        text-align: center;
+      }
+
+      .comparison-table {
+        width: 100%;
+        max-width: 1022px;
+        background-color: var(--color-background);
+        border: 0.7px solid var(--color-accent-light);
+        border-radius: 24px;
+        box-shadow: 0px 12px 32px 0px rgba(74, 60, 54, 0.08);
+        overflow: hidden;
+      }
+
+      .table-header,
+      .table-row {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr 1.5fr 1.5fr;
+        align-items: center;
+      }
+
+      .table-header {
+        background: linear-gradient(269.01deg,
+            var(--color-accent-light) 0.66%,
+            var(--color-accent-medium) 102.39%);
+        padding: 24px 0;
+      }
+
+      .header-cell,
+      .table-cell {
+        padding: 0 24px;
+        text-align: center;
+        font-size: 16px;
+        line-height: 1.4;
+      }
+
+      .table-cell.less-padding {
+        padding: 0 22px;
+      }
+
+      .header-cell:first-child,
+      .table-cell:first-child {
+        text-align: left;
+      }
+
+      .header-cell {
+        font-weight: 400;
+        letter-spacing: -0.5px;
+      }
+
+      .table-row {
+        border-top: 1px solid var(--color-accent-light);
+      }
+
+      .table-row.highlight-row {
+        background-color: #fff5f2;
+        border-top: 1px solid var(--color-primary);
+        border-bottom: 2px solid var(--color-primary);
+      }
+
+      .table-cell {
+        color: var(--color-text-secondary);
+        min-height: 90px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .table-row .table-cell:first-child {
+        justify-content: flex-start;
+      }
+
+      .highlight-row .table-cell {
+        color: var(--color-text-dark);
+      }
+
+      .logo-cell {
+        padding: 0 24px 0 55px;
+      }
+
+      .logo-cell img {
+        height: 77px;
+        width: auto;
+      }
+
+      .price-cell {
+        font-size: 24px;
+        color: var(--color-primary) !important;
+      }
+
+      .table-row:not(.highlight-row) .table-cell:nth-child(2) {
+        font-size: 20px;
+      }
+
+      .comparison-container .btn.btn-primary {
+        font-size: 18px;
+      }
+
+      @media (max-width: 996px) {
+        .table-row:nth-child(3) .table-cell:first-child {
+          padding-right: 2px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .comparison-table {
+          display: block;
+          border-radius: 24px;
+        }
+
+        .comparison-container {
+          gap: 32px;
+        }
+
+        .table-row.highlight-row {
+          padding-bottom: 50px;
+        }
+
+        .comparison-title {
+          font-size: 34px;
+        }
+
+        .comparison-header-container {
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0 24px;
+          gap: 24px;
+          width: 100%;
+          min-height: 31px;
+          height: 31px;
+          background: linear-gradient(269.01deg, #edc9b6 0.66%, #dab3a9 102.39%);
+          border-radius: 0px;
+          flex: none;
+          order: 0;
+          align-self: stretch;
+          flex-grow: 0;
+        }
+
+        .table-header {
+          display: none;
+        }
+
+        .table-row {
+          display: flex;
+          flex-direction: column;
+          padding: 24px;
+          gap: 12px;
+          border-top: 1px solid var(--color-accent-light);
+        }
+
+        .table-row:first-of-type {
+          border-top: none;
+          padding-top: 30px;
+        }
+
+        .table-row:last-of-type {
+          padding-bottom: 30px;
+        }
+
+        .table-cell {
+          padding: 0;
+          min-height: auto;
+          text-align: left;
+          justify-content: flex-start;
+          display: block;
+        }
+
+        .table-cell::before {
+          display: none;
+        }
+
+        .logo-cell {
+          text-align: center;
+        }
+
+        .logo-cell img {
+          height: 77px;
+        }
+
+        .price-cell {
+          font-weight: 700;
+          font-size: 24px;
+          color: var(--color-primary) !important;
+          white-space: nowrap;
+        }
+
+        .price-cell span {
+          display: inline;
+        }
+
+        .table-row:not(.highlight-row) .price-cell {
+          font-size: 24px;
+          color: var(--color-text-dark) !important;
+        }
+
+        .table-cell:first-child {
+          font-weight: 400;
+          font-size: 18px;
+        }
+
+        .table-cell.less-padding {
+          padding: 0;
+          font-size: 14px;
+          line-height: 21px;
+        }
+
+        .highlight-row .table-cell {
+          font-size: 14px;
+        }
+
+        .highlight-row .table-cell:first-child {
+          font-size: 14px;
+        }
+
+        .highlight-row .price-cell {
+          font-size: 24px !important;
+          font-weight: 700 !important;
+        }
+
+        .highlight-row .table-cell.less-padding {
+          font-size: 14px;
+        }
+
+        .table-row:not(.highlight-row) .table-cell {
+          font-size: 16px;
+          line-height: 1.4;
+        }
+
+        .table-row:not(.highlight-row) .table-cell:first-child {
+          font-weight: 400;
+          font-size: 18px;
+        }
+
+        .table-row:not(.highlight-row) .table-cell:nth-child(2) {
+          font-weight: 700;
+          font-size: 24px;
+        }
+
+        .feature-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .feature-item-mobile {
+          font-size: 14px;
+          line-height: 21px;
+          color: var(--color-text-dark);
+          display: flex;
+          gap: 12px;
+          align-items: flex-start;
+        }
+
+        .feature-check {
+          width: 14px;
+          height: auto;
+          align-self: center;
+          flex-shrink: 0;
+        }
+
+        .highlight-row {
+          background-color: var(--color-background) !important;
+          border-top: none !important;
+          border-radius: 0;
+        }
+
+        .highlight-row .table-cell {
+          color: var(--color-text-dark);
+        }
+
+        .highlight-row .table-cell:nth-child(4) {
+          font-size: 0;
+        }
+
+        .highlight-row .table-cell:nth-child(4) .feature-list {
+          font-size: 14px;
+        }
+      }
+
+      /* CSS for section section:Treatments */
+      .treatments-section {
+        padding: 150px 0;
+        position: relative;
+      }
+
+      .treatments-section::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 250px;
+        background: linear-gradient(to left,
+            var(--color-background),
+            rgba(253, 253, 253, 0));
+        pointer-events: none;
+      }
+
+      .treatments-container {
+        display: flex;
+        gap: 80px;
+        padding: 40px 120px;
+        align-items: flex-start;
+      }
+
+      .treatments-info {
+        flex: 0 0 321px;
+        padding-top: 80px;
+        display: flex;
+        flex-direction: column;
+        gap: 50px;
+      }
+
+      .treatments-title {
+        font-size: 48px;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .treatments-carousel-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 56px;
+        overflow: hidden;
+      }
+
+      .treatments-carousel {
+        display: flex;
+        gap: 22px;
+        transition: transform 0.6s ease-in-out;
+      }
+
+      .product-card {
+        flex: 0 0 auto;
+        min-width: 300px;
+        max-width: 300px;
+        border: 1px solid var(--color-accent-light);
+        border-radius: 12px;
+        padding: 13px;
+        padding-bottom: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 18.9px;
+      }
+
+      .product-image-wrapper {
+        background-color: #f8f8f8;
+        border-radius: 8px 8px 0 0;
+        overflow: hidden;
+        height: 266px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .product-image-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .product-info {
+        padding: 0 12px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 8px;
+        flex: 1;
+      }
+
+      .product-info h3 {
+        font-size: 18px;
+        font-weight: 400;
+        line-height: 1.7;
+      }
+
+      .product-info p {
+        font-size: 16px;
+        line-height: 1.4;
+        letter-spacing: -0.5px;
+        color: var(--color-text-secondary);
+      }
+
+      .carousel-controls {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      @media (max-width: 1900px) {
+        .product-card {
+          max-width: 300px;
+        }
+      }
+
+      @media (max-width: 1350px) {
+        .treatments-container {
+          flex-direction: column;
+          gap: 50px;
+          padding-left: 60px;
+          padding-right: 60px;
+          align-items: flex-start;
+        }
+
+        .treatments-info {
+          flex: 0 0 auto;
+          gap: 20px;
+          text-align: center;
+          width: 100%;
+          align-items: center;
+        }
+
+        .treatments-carousel-wrapper {
+          width: 100%;
+          overflow-x: hidden;
+        }
+
+        .treatments-section::after {
+          display: none;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .treatments-section {
+          padding: 100px 0;
+        }
+
+        .product-card {
+          max-width: 300px;
+          padding: 13px;
+        }
+
+        .treatments-container {
+          flex-direction: column;
+          padding: 0 20px;
+          gap: 24px;
+        }
+
+        .treatments-info {
+          display: contents;
+        }
+
+        .treatments-title {
+          order: 1;
+          font-size: 34px;
+          margin-bottom: 8px;
+        }
+
+        .treatments-carousel-wrapper {
+          order: 2;
+          width: 100%;
+          overflow-x: hidden;
+          gap: 24px;
+        }
+
+        .treatments-info .btn {
+          order: 3;
+          align-self: center;
+        }
+      }
+
+      /* CSS for section section:Gallery */
+      .gallery-section {
+        background: linear-gradient(47deg,
+            var(--color-accent-light) 60.81%,
+            #f5dacc 129.51%);
+        padding: 70px 0;
+      }
+
+      .gallery-container {
+        display: flex;
+        flex-direction: column;
+        gap: 50px;
+      }
+
+      .gallery-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 50px;
+      }
+
+      .gallery-title {
+        font-size: 48px;
+        font-weight: 700;
+        line-height: 1.2;
+        max-width: 932px;
+      }
+
+      .gallery-controls {
+        display: flex;
+        gap: 10px;
+        flex-shrink: 0;
+        align-self: flex-end;
+      }
+
+      .gallery-container {
+        overflow: hidden;
+      }
+
+      .gallery-grid-wrapper {
+        overflow: hidden;
+        width: 100%;
+      }
+
+      .gallery-grid {
+        display: flex;
+        gap: 19px;
+        transition: transform 0.6s ease-in-out;
+      }
+
+      .gallery-grid img {
+        flex: 0 0 auto;
+        min-width: 320px;
+        height: 518px;
+        object-fit: cover;
+        border-radius: 24px;
+        box-shadow: 0px 15px 20px 0px rgba(0, 0, 0, 0.05);
+      }
+
+      @media (max-width: 768px) {
+        .gallery-container {
+          gap: 32px;
+        }
+
+        .gallery-header {
+          display: contents;
+        }
+
+        .gallery-title {
+          font-size: 34px;
+          order: 1;
+          text-align: center;
+        }
+
+        .gallery-grid-wrapper {
+          order: 2;
+        }
+
+        .gallery-controls {
+          order: 3;
+          justify-content: center;
+          align-self: center;
+        }
+      }
+
+      /* CSS for section section:Experts */
+      .experts-section {
+        padding: 150px 0;
+      }
+
+      .experts-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 50px;
+      }
+
+      .expert-content-text {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .experts-title {
+        font-size: 48px;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .experts-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+        width: 100%;
+        justify-content: center;
+      }
+
+      .expert-content .btn {
+        font-size: 16px;
+      }
+
+      .expert-card {
+        background-color: var(--color-background);
+        border: 0.7px solid var(--color-accent-medium);
+        border-radius: 24px;
+        overflow: hidden;
+        max-width: 680px;
+        flex: 1 1 calc((100% - 24px) / 2);
+        box-shadow: 0px 8px 20px 0px rgba(74, 60, 54, 0.06);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .expert-image {
+        width: 100%;
+        height: 280px;
+        object-fit: cover;
+      }
+
+      .expert-content {
+        padding: 32px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        flex-grow: 1;
+      }
+
+      .expert-content-text {
+        flex-grow: 1;
+      }
+
+      .expert-content .btn {
+        margin-top: auto;
+        align-self: flex-start;
+      }
+
+      .expert-content h3 {
+        font-size: 24px;
+        font-weight: 400;
+        line-height: 1.4;
+        color: var(--color-text-secondary);
+      }
+
+      .expert-content p {
+        font-size: 16px;
+        line-height: 1.4;
+        color: var(--color-text-secondary);
+        flex-grow: 1;
+      }
+
+      .expert-content .btn {
+        align-self: flex-start;
+      }
+
+      @media (max-width: 992px) {
+        .expert-card {
+          flex: 1 1 100%;
+          max-width: 680px;
+        }
+
+        .experts-section {
+          padding: 100px 0;
+        }
+
+        .experts-container {
+          gap: 32px;
+        }
+
+        .experts-title {
+          font-size: 34px;
+        }
+
+        .experts-grid {
+          gap: 24px;
+        }
+
+        .expert-content .btn {
+          width: 100%;
+        }
+      }
+
+      /* CSS for section section:FAQ */
+      .faq-section {
+        padding-bottom: 150px;
+      }
+
+      .faq-container {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+      }
+
+      .faq-title {
+        font-size: 48px;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .faq-list {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .faq-item {
+        border-top: 1px solid var(--color-accent-light);
+        padding: 20px 8px;
+      }
+
+      .faq-item:first-of-type {
+        border-top: none;
+      }
+
+      .faq-item:last-of-type {
+        border-bottom: 1px solid var(--color-accent-light);
+      }
+
+      .faq-item summary {
+        font-size: 24px;
+        font-weight: 400;
+        line-height: 1.4;
+        cursor: pointer;
+        list-style: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .faq-item summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .faq-item summary img {
+        width: 24px;
+        height: 24px;
+        transition: transform 0.3s ease;
+      }
+
+      .faq-item[open] summary img {
+        transform: rotate(45deg);
+      }
+
+      .faq-item p {
+        margin-top: 16px;
+        font-size: 18px;
+        line-height: 1.5;
+        color: var(--color-text-secondary);
+        padding-right: 40px;
+      }
+
+      .faq-container .btn {
+        align-self: flex-start;
+      }
+
+      @media (max-width: 768px) {
+        .faq-title {
+          font-size: 34px;
+        }
+
+        .faq-item summary {
+          font-size: 24px;
+          gap: 20px;
+        }
+
+        .faq-section {
+          padding-bottom: 100px;
+        }
+      }
+
+      /* CSS for section section:CallToAction */
+      .cta-section {
+        background: linear-gradient(47deg,
+            var(--color-accent-light) 60.81%,
+            #f5dacc 129.51%);
+        padding: 50px 0;
+        border-bottom: 1px solid;
+        border-image: linear-gradient(90deg,
+            var(--color-primary),
+            var(--color-primary-dark)) 1;
+      }
+
+      .cta-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 50px;
+      }
+
+      .cta-title {
+        font-size: 48px;
+        font-weight: 700;
+        line-height: 1.2;
+        text-align: center;
+        max-width: 956px;
+      }
+
+      .cta-content-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 55px;
+      }
+
+      .cta-image-wrapper {
+        flex-shrink: 0;
+      }
+
+      .cta-image {
+        width: 604px;
+        height: 384px;
+        object-fit: cover;
+        border-radius: 32.75px;
+      }
+
+      .cta-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 30px;
+      }
+
+      .cta-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .cta-text {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+      }
+
+      .cta-logo img {
+        width: 47px;
+        height: 55px;
+      }
+
+      .cta-logo span {
+        font-size: 36px;
+        line-height: 1.5;
+        color: var(--color-text-secondary);
+      }
+
+      .cta-subtitle {
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1.4;
+        color: var(--color-text-secondary);
+      }
+
+      .cta-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .cta-actions .btn {
+        width: 100%;
+        padding: 16px 89px;
+      }
+
+      .cta-caption-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .cta-caption-small {
+        font-size: 14px;
+        font-weight: 300;
+        line-height: 2.14;
+        font-style: italic;
+      }
+
+      .cta-caption-bold {
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.5;
+        color: var(--color-text-secondary);
+      }
+
+      @media (max-width: 1200px) {
+        .cta-content-wrapper {
+          flex-direction: column;
+        }
+
+        .cta-image {
+          width: 100%;
+          height: auto;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .cta-container {
+          gap: 24px;
+        }
+
+        .cta-title {
+          font-size: 34px;
+          margin-bottom: 16px;
+          order: 1;
+        }
+
+        .cta-content-wrapper {
+          display: contents;
+        }
+
+        .cta-logo {
+          order: 2;
+          justify-content: center;
+        }
+
+        .cta-logo img {
+          width: 66px;
+          height: 52px;
+        }
+
+        .cta-logo span {
+          font-size: 36px;
+          line-height: 54px;
+        }
+
+        .cta-image-wrapper {
+          order: 3;
+        }
+
+        .cta-info {
+          display: contents;
+        }
+
+        .cta-text {
+          order: 4;
+        }
+
+        .cta-caption-group {
+          gap: 12px;
+        }
+
+        .cta-actions .btn {
+          padding: 16px 32px;
+        }
+      }
+
+      /* CSS for section section:Footer */
+      .footer-section {
+        background-color: var(--color-background);
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 40px 0;
+      }
+
+      .footer-container {
+        display: flex;
+        flex-direction: column;
+        gap: 50px;
+      }
+
+      .footer-links {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .link-column {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-self: center;
+      }
+
+      .link-column h4 {
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1.4;
+      }
+
+      .link-column ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .link-column ul li a {
+        line-height: 21px !important;
+      }
+
+      .link-column ul li {
+        line-height: 21px !important;
+      }
+
+      .link-column a {
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--color-text-dark);
+        text-decoration: none;
+      }
+
+      .link-column a:hover {
+        text-decoration: underline;
+      }
+
+      .footer-copyright {
+        border-top: 1px solid var(--color-accent-light);
+        padding-top: 10px;
+        text-align: center;
+      }
+
+      .footer-copyright p {
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--color-text-secondary);
+      }
+
+      .footer-logo {
+        width: 148px;
+        height: 148px;
+        padding-left: 16px;
+      }
+
+      .legit-seal {
+        align-self: center;
+      }
+
+      .legit-seal img {
+        width: 106px;
+        height: 115px;
+      }
+
+      @media (max-width: 768px) {
+        .footer-links {
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+
+        .footer-container {
+          gap: 32px;
+        }
+
+        .footer-copyright {
+          width: 220px;
+          align-self: center;
+        }
+
+        .footer-links {
+          gap: 24px;
+        }
+
+        .footer-logo {
+          width: 127px;
+          height: 128px;
+          padding: 12px;
+        }
+      }
+
+      .hide-desktop {
+        display: none;
+      }
+
+      .hide-mobile {
+        display: block;
+      }
+
+      .hide-desktop-small {
+        display: none;
+      }
+
+      @media (max-width: 430px) {
+        .hide-desktop-small {
+          display: block;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .hide-desktop {
+          display: block;
+        }
+
+        .hide-mobile {
+          display: none;
+        }
+      }}</style></head><body><div><div id="ZlmmlbBvfrp5pfnURphpz" class=""><div id="8J6FGG6dvB90uSra2KkgZ" class=""><header id="header" class="header-section"><div id="kGZltgT9_RphiGjVt5rHF" class="container header-container"><div id="Z2coa6d3sXgKR83S0mopl" class="logo"><img src="assets/exia-health-logo.png" alt="Exia icon" class="" id="YJlh21DcX1AWUUa7l8dMM" loading="lazy"/><img src="assets/414_815.svg" alt="Exia text logo" class="" id="sM94dYWqRwZN0cmg2O_LD" loading="lazy"/></div><nav id="cLixCd-PkqF1kN0UFDVIc" class="header-nav"><a id="ryHB93LARQGLoIw3wXL8n" class="btn btn-primary" href="#cta" target="_self">GET STARTED</a><div id="MqjNCrtSj-9pVRvXYQr4i" class="menu-toggle"><img src="assets/slider_btn.png" alt="Menu" class="" id="KltYBQ_P0X0wR8R_KEDoh" loading="lazy"/></div></nav></div></header><div id="mobile-menu" class="mobile-menu-modal"><div id="7UyeH_SN2a8Lzxp9G84Vu" class="mobile-menu-content"><div id="rjb2tw7zqaZCliHIVvyX9" class="mobile-menu-top"><div id="CXmYl3iWtlSsLgN_cXL45" class="mobile-menu-close"><img src="assets/close-modal-button.png" alt="Close" class="close-icon" id="firIuXIdOsH3fkm-FpHb0" loading="lazy"/></div><nav id="TVmYkbcFvpHahA9E44X98" class="mobile-menu-nav"><div id="MWohNaN9JPRfIJmLrile9" class="mobile-menu-item"><div id="dt-G6m1Ok_lIvHYMO83MD" class="mobile-menu-link about-us-toggle"><span id="RZdmgec7tbcrhmLJm4Hic" class="">ABOUT US</span><div id="HlG4qDvN_fAMUHmJIVSG7" class="expand-icon text"><img src="assets/open-plus-icon.png" alt="Expand" class="expand-icon-plus" id="ZH7srnLeWAde1a9eFkwmr" loading="lazy"/><img src="assets/close-minus-icon.png" alt="Collapse" class="expand-icon-minus" id="_zdBc_iH4UwONtR3p9WHJ" loading="lazy"/></div></div><div id="NsBpB6UDDyShZpiCMwN2Q" class="mobile-menu-submenu"><a id="iGPnTdR2E4ISqlLlnDqt9" class="mobile-menu-sublink" href="#" target="_self">Who we are</a><a id="SwY91RLIX96lcph71AuG_" class="mobile-menu-sublink" href="#" target="_self">Our care</a></div></div><a id="vnjAIYp1OqJ8PvOfV-Pv1" class="mobile-menu-link" href="#" target="_self">TELEHEALTH</a><a id="6qwk_l7V2sCxTRCqIwrfb" class="mobile-menu-link" href="#" target="_self">SHOP</a><a id="oYqzfEDsMtTXgs5lC4TMk" class="mobile-menu-link" href="#" target="_self">JOURNAL</a><a id="mhXEjgz8UVIhpTwTT3rah" class="mobile-menu-link" href="#" target="_self">CONTACT</a></nav></div><div id="mm0F2hR45ch2uoB1m_nq-" class="mobile-menu-bottom"><a id="mEt-RNP9tkgV4wK4ZT1pt" class="btn btn-primary" href="#cta" target="_self">GET STARTED</a></div></div></div><section id="hero" class="hero-section"><div id="O7c3RilYmLUHafgoKPIJO" class="container hero-container"><div id="FrCXBiRT4My4xNNG8inzf" class="hero-content"><div id="Lni1anF5OOsUHmbv7NDtd" class="hero-content-top"><div id="6PlsNNuZjSavqPKsdWUsx" class="hero-rating"><div id="KSicBcS2aAR5ZG4PSi9I7" class="stars"><img src="assets/104_4650.svg" alt="star" class="" id="Ik_qbcTw9njibkl7tGqEV" loading="lazy"/><img src="assets/star03.png" alt="star" class="" id="VScUHl2mVdGHdXMqvOW0b" loading="lazy"/><img src="assets/star03.png" alt="star" class="" id="QmlsMbhqCvrzAraFUV36M" loading="lazy"/><img src="assets/star03.png" alt="star" class="" id="_akLVC7KpoyqfW-Ab3jRb" loading="lazy"/><img src="assets/star03.png" alt="star" class="" id="2hNMWjPLuQiMi7t1IGhAh" loading="lazy"/></div><p id="RU7I3BZs1dYUBnNsiCUx7" class="">100,000+ Happy Patients</p></div><div id="EEMJWDC4qorG7YMXpW5SF" class="hero-headline"><span id="HjIRlWgXgrfnBHryVv9W7" class="">We treat</span><br id="d_B4mG-weq1mr8PhbWF_d" class="hide-desktop-small"/><span id="NHgp-jqWqGw1Ny0jfF9xo" class="highlight">hot flashes</span><br id="IkczIE1yXm8NbfpRyJ9Ld" class=""/><span id="_nSovmYBvuctZO0iBy_75" class="">so you can feel like you again.</span></div></div><p id="MBfL_Q2kHLhDWu3goTlOA" class="hero-description">After 35, hormone levels decline for every woman. This decline has negative impacts on your health and wellbeing. Try bioidentical HRT and experience relief from the symptoms you notice, and the ones you don't.</p><div id="AtrIAfB3tzBIZ3pMUfRey" class="hero-cta-group"><div id="gIjachdiC--1yNFgKJ-YC" class="cta-item"><a id="niINYZCU3mt4_aUhTzojt" class="btn btn-primary" href="#cta" target="_self">RESTORE MY HORMONES</a><p id="IPvhxFFh873eepdkcOv82" class="cta-caption">Ready to get started? Begin your medical intake here</p></div><div id="lxsV8VJ6xsP9bxPn68JUc" class="cta-item"><a id="TXl-pg7V-41MCqIjG7Qus" class="btn btn-secondary" href="#quiz" target="_self">TAKE THE QUIZ</a><p id="n5cESPcxbh_k-OyA8Zet5" class="cta-caption">Not sure if Exia is right for you? Start here.</p></div></div></div><div id="SlyQ-GNWM3pziqaOaSpqX" class="hero-image-wrapper"><video src="assets/istockphoto-1469733028-640_adpp_is.mp4" alt="Group of happy women" class="hero-image" id="UWdVq_rYAg7Ge_Uf-4e-m" autoPlay="" loop="" muted="" playsInline=""></video></div></div></section><section id="benefits" class="benefits-section"><div id="x1iJ2Fo2pjm1jadQtCuVl" class="container benefits-container"><h2 id="0l_7nIvJuILDYaP4PxlHU" class="benefits-title">Helps To Improve...</h2><div id="O4YS_najVgUbShLukUy6K" class="benefits-grid"><div id="uWur15mqzG9OjH7y42qqt" class="benefit-card"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Hot Flashes &amp; Night Sweats" class="benefit-icon" id="f3hcd0YgUSV3HC8u2IJ2V" loading="lazy"/><div id="XUMfGEXGbfYbFnXOWl26w" class="benefit-card-content"><h3 id="7F8PXc1JbfyAMUeTapsPL" class="benefit-card-title">HOT FLASHES & NIGHT SWEATS</h3><p id="TlGpNz4v9waX6fbFU5br-" class="benefit-card-text">Reduces sudden heat spikes and nighttime sweats by restoring hormonal balance—so you stay cool, dry, and comfortable.</p></div></div><div id="kjR6YH61M8TVR1PPFHOx4" class="benefit-card"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Sleep &amp; Fatigue" class="benefit-icon" id="EbVLtFabfTOsDoknXiJK4" loading="lazy"/><div id="hKXXPMJQdG9ZJ_GgQVoOJ" class="benefit-card-content"><h3 id="m2Uwi6yLJJVE3hvKZMjGP" class="benefit-card-title">SLEEP & FATIGUE</h3><p id="lvvD_KYedMmo9PqyJItWY" class="benefit-card-text">Improves sleep quality and boosts daytime energy by regulating the hormones that disrupt your rest.</p></div></div><div id="RUD3Y7vX1ETrpVsZG0lmj" class="benefit-card"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Stubborn Weight Gain" class="benefit-icon" id="hcJE-mDn9U_RwupuRh9Dl" loading="lazy"/><div id="JV580Ep94EpqkSlbJh19B" class="benefit-card-content"><h3 id="FQMGnxL5RFTstwaF-LIxE" class="benefit-card-title">STUBBORN WEIGHT GAIN</h3><p id="gSoJ-exeFg5dhcm7AVT91" class="benefit-card-text">Balances estrogen and insulin sensitivity to help reduce hormonal belly fat and support a healthier metabolism.</p></div></div><div id="3AUsRgGKW2b3JngJ0I2FC" class="benefit-card"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Low Libido &amp; Vaginal Dryness" class="benefit-icon" id="LEWCfvV7pAZOC-iQ6iZAF" loading="lazy"/><div id="aoAsIeGvamj9qrLueZgaO" class="benefit-card-content"><h3 id="YGTmX9OgyilGwjjY6mspd" class="benefit-card-title">LOW LIBIDO & VAGINAL DRYNESS</h3><p id="3i-3UDqB-u_D-C6Ep2jgN" class="benefit-card-text">Reignites desire and relieves dryness by replenishing key hormones tied to arousal, comfort, and intimacy.</p></div></div></div><a id="rMZWuVLtI93RE6XP6i6UQ" class="btn btn-primary" href="#cta" target="_self">RESTORE MY HORMONES</a></div></section><section id="support" class="support-section"><div id="jdJzyiUJXuPMs2z4pXUH0" class="container support-container"><div id="9ea4cxo21XoQVR_jKzI-c" class="support-title-wrapper"><h2 id="KNFsB3L9tMTtq9GKfEFhG" class="support-title">Menopause Support, Simplified</h2><p id="pgU7GLhz36qpVms2GZZ2v" class="support-subtitle">Exia is a telehealth service that guides, treats, and supports women through every stage of menopause — with expert care that meets you where you are.</p></div><div id="Z7FhvsikrIQD1Cv0QL0RW" class="video-content"><div id="VRIlZtT1aEhvtEvfKFlh0" class="video-wrapper"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Two women smiling, one with her hand on her cheek" class="video-thumbnail" id="11-yIV8w8gzPLxeDwa9Sv" loading="lazy"/><div id="0dURhf8olejmuu81VPoxM" class="play-button"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Play button" class="" id="l0FZ63WSuuN4BB2zL1BNo" loading="lazy"/></div></div><div id="gonuzhty0X150rhQNt2On" class="video-caption"><span id="3rqb_oPv4-A6niy_3RJEW" class="highlight">*</span><span id="fM6i3GKKd80LtonwSoJsN" class="">Watch to learn about Exia and treatment options.</span></div></div></div></section><section id="design" class="design-section"><div id="ZGAB3VLh_XKCSiEW6HUCC" class="container design-container"><div id="LYL7E4Mfgh98HU35o-nWw" class="design-image-wrapper"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Three women of different ages" class="design-image" id="ci4AGMEmOsxMdljZgYB1J" loading="lazy"/></div><div id="4Bz3uFlbpGMiLQKJ4kCWK" class="design-content"><h2 id="gSZf6AzA3aFneElH6NsZz" class="design-title">Exia Has Been Scientifically Designed To</h2><div id="JSuUfekKtCdfJeBfECwi1" class="design-features"><div id="-2h8rmK7ym_sOFlID5i6j" class="feature-item"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="" class="feature-icon" id="B_1Kf8YDNbwWglHIWbSvb" loading="lazy"/><div id="IytzLlA0wgRJiJU1JpkOo" class="feature-text"><h3 id="d_abVlhB5LCG9dcmegRIS" class="">Rebalance Hormones Naturally</h3><p id="Kktz2Mq_bd-7bfqAoRMA2" class="">Exia supports declining estrogen, progesterone, and testosterone levels to restore internal balance—helping reduce the rollercoaster of mood swings, fatigue, and night sweats that often come with menopause.</p></div></div><div id="lqAo3l98BK0nk9tWtOVyI" class="feature-item"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="" class="feature-icon" id="4dmtuVyuYbKvmKd9Ls0pE" loading="lazy"/><div id="MHYc2Jkv4bMgirkCnyrBE" class="feature-text"><h3 id="4_a1tXwkyznfCCaOsWu33" class="">Reduce Hot Flashes & Night Sweats</h3><p id="SptJpBL0uHMXmm9JI0VJi" class="">Formulated to target thermoregulation and hormonal fluctuations, Exia helps cool down your body’s stress response, minimizing disruptive temperature spikes that interrupt sleep and comfort.</p></div></div><div id="x3xyUaJdpjcghibr0TR74" class="feature-item"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="" class="feature-icon" id="ER28rgOqXDyH7Syj6Yo6c" loading="lazy"/><div id="RzLHO0yh8btbnMF80AO98" class="feature-text"><h3 id="_tTUDa_D4INHE3RO3EtfJ" class="">Improve Mood, Sleep & Mental Clarity</h3><p id="naX7jH6vIUSyDXswE0Rdr" class="">Exia's ingredients support cortisol regulation and neurotransmitter balance, helping to calm irritability, sharpen focus, and promote deeper, more restorative sleep.</p></div></div><div id="m7ng8ex4EO_hM4QzXsn5p" class="feature-item"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="" class="feature-icon" id="t9ZwPQrM0OZLnW79EKuF5" loading="lazy"/><div id="z9jmcuDO5tkmEiy69sRPf" class="feature-text"><h3 id="vR8PiilqNpoHIbBUMBtOg" class="">Revitalize Libido & Confidence</h3><p id="G2gPXNmjO0RbSCcQjq1Yw" class="">By nourishing hormonal balance and circulation, Exia's helps rekindle your natural drive—so you can reconnect with your body, your partner, and your sense of feminine vitality.</p></div></div></div></div></div></section><section id="results" class="results-section"><div id="BFOKjmap7fFF_BfipOdXO" class="container"><div id="E4gq2CdqPFZQTkoFr6jd_" class="results-card"><div id="-hMD981UU-tATqsLcp1SH" class="results-text"><p id="ke5LoA27U6x3Pv2_Yg4Fi" class="results-pre-title">Life Changing Results above this</p><h2 id="Yrw33gmafkJnHHQR-Ip0Y" class="results-title">Find Out Why More Than 200,000 Women Trust Exia</h2></div><div id="YDvFYGKePHCldVYYmxwJH" class="results-graphic-wrapper"><div id="4r5Fnjd4s8qhu8ZB8eO_t" class="results-graphic"><div id="dPjBQgvpez636Hr0ZtfxM" class="carousel-track-fade"><div id="fV1RHOTliZ0WUw_uGF_zH" class="carousel-slide active"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Woman relaxing" class="results-image" id="WUklx1U_54GfyoJDrLUHt" loading="lazy"/></div><div id="LVlcqhruvccz2AjIL9chN" class="carousel-slide"><img src="assets/why-women-trust-2.png" alt="Why women trust Exia" class="results-image" id="ucRiFXBkwISmgA7it9KAi" loading="lazy"/><p id="RVmE_lpzW6jtqQmzRnzae" class="results-disclaimer hide-mobile">*Based on internal data from Exia patients using personalized hormone therapy for at least 6 months. Individual results may vary.</p></div></div></div><div id="lJcVaiUR0j7QLkDhcySLm" class="results-controls"><div id="OWI3zhBZKobcRyhIyYbdv" class="control-btn prev-btn disabled"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Previous" class="" id="9_UZYF-tVSsrJFANxUIKt" loading="lazy"/></div><div id="J6ZrjP4BRHlnrXA6IYWco" class="control-btn next-btn"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Next" class="" id="oN66xEBFLVt21u9_5HImM" loading="lazy"/></div></div></div></div></div></section><section id="how-it-works" class="how-it-works-section"><div id="8DRt-OI_-7DFBe-Y_2VCO" class="container how-it-works-container"><h2 id="rrr_XA7R9wwIA9cOKxJyl" class="how-it-works-title">How It Works</h2><div id="18u_XIgdh4OxdJZ7KvadR" class="steps-grid"><div id="OjXTSGEg8icEG__4V1_5P" class="step-card"><div id="0nS09rkdllF7rio2slSZ1" class="step-badge"><span id="_jUYLoVqE07WBD_9b3OMR" class="">Step 1</span></div><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="" class="step-icon" id="5ybS0cI3xtsfL-8CRbQZN" loading="lazy"/><div id="JUKPjtwuOm7ryHYc6IGo2" class="step-content"><h3 id="6ULi7daGDR2bBrdStAz5h" class="step-title">Your easiest visit ever</h3><p id="57NEUKkw7i6e6W1z23VnM" class="step-text">Share your symptoms and medical history. We’ll connect you with a licensed menopause physician for a personalized plan.</p></div></div><div id="goY2CwpVhsgk6jvAMtkja" class="step-card"><div id="3a6jgtkq7aLmvj3i0PSom" class="step-badge"><span id="v38GD8ui6w9sC7C9fgTHA" class="">Step 2</span></div><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="" class="step-icon" id="NWj6fCUSw2auaeGJnWo79" loading="lazy"/><div id="Cjew9OIVgQITbQ_QNxaly" class="step-content"><h3 id="pYYKL_en8FLQA07-FwQjp" class="step-title">Relief, delivered</h3><p id="zJNwLJWbEtTmyeAxbmYJ4" class="step-text">Once approved, your treatment ships discreetly to your door in just a few days</p></div></div><div id="cKODDnZHc3gpn9quGs9NJ" class="step-card"><div id="j_JqFQKhvkG70e162F5M0" class="step-badge"><span id="ZcD3OlYerr32KymqeaD3-" class="">Step 3</span></div><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="" class="step-icon" id="T0Yu_aK2Oikl87w-EUem1" loading="lazy"/><div id="OEVWc5HbJtgswiMqHpsVc" class="step-content"><h3 id="Wu86ZxVBiCqv6oC65kTG7" class="step-title">Ongoing care</h3><p id="pS0lsYJBmL0vEx2iBut7O" class="step-text">Your doctor checks in, adjusts your plan as needed, and is always available for support.</p></div></div></div></div></section><section id="comparison" class="comparison-section"><div id="Xih6obJ23OpQIu696GxOd" class="container comparison-container"><h2 id="xkpzh3X0ykmYKOr2OXB_e" class="comparison-title cyx7lv7 c-lkq7ui">Superior Menopause Care In The US</h2><div id="yCf-syWaEk-ZnQ7fJTxvE" class="comparison-table"><div id="6uWCIiH78FGrbDAGwyYrL" class="comparison-header-container hide-desktop"></div><div id="XeqAmQoTSPbyLFiBWjo98" class="table-header"><div id="7c_aeAZHLrmmKGe2wiMC5" class="header-cell"><span id="8VEO0iLfjugbpcBsH6eIu" class="">Treatment</span></div><div id="5dgnBSXZ6y9I0tzZy5Emr" class="header-cell"><span id="L9lGHm7sJpqE8IHFDtWGT" class="">Monthly Cost</span></div><div id="S2luF2YQ1vJ4oP1ctXaMD" class="header-cell"><span id="MvT0iEr_KWbrarI8Ni2of" class="">Active Ingredients</span></div><div id="ncJGddJc5Hmj1tN_udb7_" class="header-cell"><span id="bOyxvCaFo4EikLqrbTMst" class="">Convenience</span></div></div><div id="wNj44BTYfzPZ3VnSmwZwY" class="table-row highlight-row"><div id="0fRm87cBASRdnCOdyQUz7" class="table-cell logo-cell"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Exia Logo" class="" id="Ngghifc1-ptHjF4Hbhb0_" loading="lazy"/></div><div id="ayUFiHQz7lBG_zxUC4LTn" class="table-cell price-cell"><span id="lVMg7TQGSzgJ15LcczoBL" class="">$89+</span><span id="9WlcrEhXa9zHAuB1X1Pji" class="hide-desktop">/ month</span></div><div id="RMPE-N4-G9spkSFaTKLIN" class="table-cell less-padding"><span id="62jvEIU4X_DNjovRZBXws" class="">Estradiol, Progesterone, Estriol</span></div><div id="TBmBSqeSnurn24wwkjsHD" class="table-cell"><span id="UfOVKj9VeXXUaP7ea5Bbk" class="hide-mobile">100% online & delivered</span><div id="KyB48eJMoxoELy9vbnRK6" class="hide-desktop feature-list"><div id="LbkTKQVxnniaL6_BK9G5H" class="feature-item-mobile"><img src="assets/tick-comparison.png" alt="" class="feature-check" id="vFpxaAGF8kKjf3mCDzWon" loading="lazy"/><span id="vn74ZGzzjSzsZD6VgBMZE" class="">100% online</span></div><div id="ld0NnI9lcpTIxzddb3pkb" class="feature-item-mobile"><img src="assets/tick-comparison.png" alt="" class="feature-check" id="gPmQbCMPAAysWunHD-O0N" loading="lazy"/><span id="frBXWZax2yYzmx7eMWAR6" class="">Clinician-guided</span></div><div id="J-Y1_W4U1y5h40NUK666Y" class="feature-item-mobile"><img src="assets/tick-comparison.png" alt="" class="feature-check" id="5CljXUw4x10ljj3tAlsF8" loading="lazy"/><span id="g7cwK9sy-lOdANmQIHcyh" class="">Delivered to your door</span></div></div></div></div><div id="-hUKqp6pUX9nq8-xws2uM" class="table-row"><div id="mesNFRTPYd8zG4Ee-OblG" class="table-cell"><span id="FVJxE3OO1kQubSqsECRXw" class="">Estrace/Climara/Vivelle</span></div><div id="FGIqjmr_EQ9PJT6pCcI_I" class="table-cell"><span id="ZsXmhpMJ8ENovgl5H80M5" class="">$300+</span></div><div id="xiftnwX8kHlZiMt27-CRG" class="table-cell"><span id="mX4B8AzjTSeRgpqw5QX8J" class="">Estradiol</span></div><div id="abNA6-B848zVM879iO2z2" class="table-cell"><span id="2DqsRS8dl4nk5M94o6GtS" class="">Multiple doctor visits</span></div></div><div id="TDROJyqVtk-aAL96SpOhU" class="table-row"><div id="KfvDYzvh6T7xAWWbdOMzj" class="table-cell"><span id="KkpcEy2OoO8QbSUo_7XNg" class="">Vagifem/Estring</span></div><div id="l5Dp3VaZrUjEAaGN5jyYO" class="table-cell"><span id="ADdAQH3xF2Mkj6BWFgUcQ" class="">$300+</span></div><div id="2u3YdxfJmDGe7RBMcqvOC" class="table-cell"><span id="iDAEoXH-NItdk0-eX1CKZ" class="">Estradiol</span></div><div id="cJ-M0I4raO-pxh-NQyDK9" class="table-cell"><span id="Kzz2BIa6Tto6ido4cFudW" class="">Multiple doctor visits</span></div></div><div id="FhQjqJK8Ct2NkdXmC1Grp" class="table-row"><div id="qmPMok_MA_bySMEuaaQlZ" class="table-cell"><span id="OtIvc2m70oPdTpyiNBh2q" class="">OTC Solutions</span></div><div id="j8bC8HRAVyS_3rm0JykMw" class="table-cell"><span id="wood6WHNlBDkSxUmSCHmP" class="">$30+</span></div><div id="IuZZx1CB71taN6Kca0pQ2" class="table-cell"><span id="cKqBTaQ5ko8E0_qs5mW-X" class="">Clinically ineffective</span></div><div id="4PqzG4H0pAWqHWtfNKTVD" class="table-cell"><span id="d0HYAkOwF-UndCXWweF30" class="">Online or in-store</span></div></div></div><a id="fbpRhrX3f2OLtK83_XZ2V" class="btn btn-primary" href="#cta" target="_self">START SAVING TODAY</a></div></section><section id="treatments" class="treatments-section"><div id="TVzf8Q5v0H0AYifjFVD1o" class="container treatments-container"><div id="sed1aBSu1eGtt9lFrNHds" class="treatments-info"><h2 id="e4xv_-ZSa-d3GuDWRyOmU" class="treatments-title">Browse Exia's Menopause Treatments.</h2><a id="bjkE8qq3tJbsGzucmyby4" class="btn btn-primary" href="#shop" target="_self">SHOP ALL TREATMENTS</a></div><div id="PbtjB1Z_3B5zB-uVZYI8-" class="treatments-carousel-wrapper"><div id="l4DT3j99uaZFwdesNzrL7" class="treatments-carousel"><div id="zyRftfV3zQLn9el6JBsma" class="product-card"><div id="tsqk7iMnVtGtMQ5W1zS9D" class="product-image-wrapper"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Estrogen Body Cream" class="" id="fFRPSw4NBRE-0uaCcMyMG" loading="lazy"/></div><div id="UlEm3FRcGxr_P0ZuHxf-A" class="product-info"><h3 id="Dqj1XhIefxGrUW85Z0XM6" class="">"Estrogen Body Cream (with Progesterone)</h3><p id="oWXYCxornpFhP0GgzpUUF" class="">$89/month</p></div></div><div id="6Xv2KzrCfVgd_IA0FgxIu" class="product-card"><div id="I_yPmLUMRyWwbPTIQK95Q" class="product-image-wrapper"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Estrogen Patch" class="" id="U7Kxy1GgmZbhbnaG9qmll" loading="lazy"/></div><div id="Pcq3G-GyFsFA3tkqpQ5hf" class="product-info"><h3 id="BFYKP_B122uGAzdcq_eVk" class="">Estrogen Patch</h3><p id="DuX7AejY6ZMsgUjM55HPk" class="">$149/month</p></div></div><div id="D2CgtMAUL7-Ln_-b5Wx6U" class="product-card"><div id="_Bq6h1KYo8fOLTeyzqaMO" class="product-image-wrapper"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Progesterone Capsules" class="" id="OoAZyWeJoBjGIfkPwBxGe" loading="lazy"/></div><div id="xfz_ntLhvHEsbmBzuqo2J" class="product-info"><h3 id="zBNX3cMsdDb9wU8SGlVQs" class="">Progesterone Capsules</h3><p id="Q0oU0ALI4T1YjfnMBSuxl" class="">$39/month</p></div></div><div id="hgkgDZViTWIDTRzQWOyFJ" class="product-card"><div id="emIUnHmnMyn25Z6-q9g5S" class="product-image-wrapper"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Estrogen Body Cream" class="" id="cKII5Rfpz6QUoC_nCF9R5" loading="lazy"/></div><div id="dPLGj3nOR6aMQIoMDiK0E" class="product-info"><h3 id="bP5WUQqYpI6adJA6JeEMk" class="">Estrogen Body Cream (with Progesterone)</h3><p id="uaCtZqYNbUZy0GI_ZWh5O" class="">$89/month</p></div></div><div id="anNjwGs5R0nBFkpxUj7FV" class="product-card"><div id="2gguoZjj-BDm0wlu0ebUs" class="product-image-wrapper"><img src="assets/patch-mockup.png" alt="Estrogen Patch" class="" id="oPNEAKxN_t2QUrrKpl9h8" loading="lazy"/></div><div id="-s0dbR9aKiWmXXWBbCDpw" class="product-info"><h3 id="IPlQqgACVUvWxPLGmUWMH" class="">Estrogen Patch</h3><p id="2GFxjwZ65epKTHn2zIAkr" class="">$149/month</p></div></div><div id="1x_dU27mpcsnNcvxSJ8do" class="product-card"><div id="Dl8SuLwaCNWNRaeKUtyT9" class="product-image-wrapper"><img src="assets/Cosmetic_jar_Mockup-2.jpg" alt="Progesterone Capsules" class="" id="F6zb4jVGwbMKm93fMO5X_" loading="lazy"/></div><div id="WPc7D2TEb2ESr0C_mGB0B" class="product-info"><h3 id="xc3lF8eXISqJiNDEeqRJp" class="">Progesterone Capsules</h3><p id="l2ESiB8P1LDV1AYUrvHQI" class="">$39/month</p></div></div></div><div id="nuwuS11Mj0H9xg3xUUM5K" class="carousel-controls treatments-controls"><div id="dTMkOKxtqmTdbPoDdKBDn" class="control-btn treatments-prev-btn disabled"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Previous" class="" id="Q0J9AbDX1ACB-7cwFut7m" loading="lazy"/></div><div id="FTHjDmK6EIFbDEsSuwR2p" class="control-btn treatments-next-btn"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Next" class="" id="dQ0SolSfVqRzEANzv7Iuj" loading="lazy"/></div></div></div></div></section><section id="gallery" class="gallery-section"><div id="lGZOcHuf343bAXo35s3Ec" class="container gallery-container"><div id="R_6XU_DO2ReUVnmlF3lLy" class="gallery-header"><h2 id="0m68UABbTlf6z6ZhjGGo5" class="gallery-title cyx7lv7 c-lkq7ui">Join Thousands Of Women Finding Relief And Support With Exia.</h2><div id="4lGIBmh0nKibLYpRmt5iv" class="gallery-controls"><div id="1qeyl1SCO2C1NcBp3rReO" class="control-btn gallery-prev-btn disabled"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Previous" class="" id="daMHxdBKX3W_3c_MgfNVD" loading="lazy"/></div><div id="2MnuxOHBOi5l-e97oGy8z" class="control-btn gallery-next-btn"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Next" class="" id="4jKxOV7coWAlSGT6JzCre" loading="lazy"/></div></div></div><div id="X_X0ipKcq4oYJrzuAnZnw" class="gallery-grid-wrapper"><div id="56kC5_BGYbEKrB2bGDUWU" class="gallery-grid"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Happy woman outdoors" class="" id="gR-ykJDmRCnba6cePSQwU" loading="lazy"/><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Smiling woman in a kitchen" class="" id="uq94qJLvGdRt8uRCOcoHy" loading="lazy"/><img src="assets/15e684367963a876d1d51cb8b8387f4cb332136d.png" alt="Woman sitting on grass" class="" id="7h5wqh_s-f3PMViOqauLc" loading="lazy"/><img src="assets/de581a46a29fa1ada2c980c41aed7f65b9f39791.png" alt="Woman enjoying the sun" class="" id="a93M3BaACF5rdNxnXtAbl" loading="lazy"/><img src="assets/04185e868eeac438888776c96a97e5cc95457cba.png" alt="Happy woman outdoors" class="" id="lX9YglAlwZpa2tZTSlwXF" loading="lazy"/><img src="assets/ff1f953db0e174bc37755c7322ae615ab3365dec.png" alt="Smiling woman in a kitchen" class="" id="eP7ICBQscRrgzXJQuXpGf" loading="lazy"/></div></div></div></section><section id="experts" class="experts-section"><div id="uSf1YZIcwBWoDbq6n2a7s" class="container experts-container"><h2 id="QPduRvI1u0i6AEfqqrNNx" class="experts-title">Ask The Experts</h2><div id="h1KXgodrx1m3qP-RaH-Rs" class="experts-grid"><div id="cD5QG5XJSWj0KHUyK0qF1" class="expert-card"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Various beauty products" class="expert-image" id="bY15_5LfZNS4kOGBt-n3p" loading="lazy"/><div id="rYq9VKoPNufC1P-INubh2" class="expert-content"><div id="ohc1IzDFO5j9Bm33dI41q" class="expert-content-text"><h3 id="zL7dZO50x8jKvppr8VQoQ" class="">Understanding Bioidentical Hormones</h3><p id="cjzfCLhz4ezEH16GXVVpK" class="">Learn how bioidentical hormone therapy differs from traditional HRT and why it might be the right choice for you.</p></div><a id="AFcutODq0W17bNprX5XVl" class="btn btn-secondary" href="#" target="_self">LEARN MORE</a></div></div><div id="hOTKiSohuOSB4me1nlhnu" class="expert-card"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Women in a meeting" class="expert-image" id="veIgKXL8hbUy58C2tecPl" loading="lazy"/><div id="aT5U4R2PLW8tXceFHpMMB" class="expert-content"><div id="vPqkd2AJrZPI4y8Az5Id2" class="expert-content-text"><h3 id="ifOwp7pnZvj79jEMrzek4" class="">Live Q&A with Healthcare Providers</h3><p id="Kigwgk8H5hqndFWYKdTwG" class="">Join our monthly live sessions where our board-certified providers answer your questions about menopause and HRT.</p></div><a id="lDvhgYwuE3s6GlowCQJny" class="btn btn-primary" href="#" target="_self">JOIN SESSION</a></div></div></div></div></section><section id="faq" class="faq-section"><div id="_k5cR_6wvz2B9zppUqoRK" class="container faq-container"><h2 id="Kl9sWcgyae2vZ-HVvPEWX" class="faq-title">Frequently Asked Questions</h2><div id="bxZQYJaxnj0HwQONN1tNK" class="faq-list"><details id="c304-v3fUmys1p6P-vN_8" class="faq-item"><summary id="FAOS1sRg48sxDn5251Brj" class=""><span id="Zk6n7zpHA4PRjVXV4aIOs" class="">What is bioidentical HRT?</span><img src="assets/I104_4986_16_522_16_193.svg" alt="toggle icon" class="" id="l1Yz0Q9Dz44qGF1sdJpw6" loading="lazy"/></summary><p id="6QG5cVqVniljE-fqAx4jX" class="">Content for "What is bioidentical HRT?"</p></details><details id="ME-DW2RqfAkZguF0rzBr5" class="faq-item"><summary id="BZOweMtldaxTsWa6fRPHH" class=""><span id="LanEO1nO-HiQ01VNpEPop" class="">How safe is HRT? What are the risks?</span><img src="assets/I104_4986_16_522_16_193.svg" alt="toggle icon" class="" id="k9Vf9Z9ho5lmbuyj5Hvcf" loading="lazy"/></summary><p id="SXz6HHmCKOvEd2tt9-EdI" class="">Content for "How safe is HRT? What are the risks?"</p></details><details id="0Y58lXnTcG18WAvqz_7lC" class="faq-item"><summary id="5RIIxT6nDq1FimL692-lm" class=""><span id="Xu8hMt6LsoalI3t7oJP9Z" class="">Do I need blood or saliva hormone testing?</span><img src="assets/I104_4986_16_522_16_193.svg" alt="toggle icon" class="" id="lB4h2TIfR6a86EYzRMQzJ" loading="lazy"/></summary><p id="10vd3AwrzPZQwk5Cqn0hO" class="">Content for "Do I need blood or saliva hormone testing?"</p></details><details id="Lh6WU_cP_vcPED6UU62Z0" class="faq-item"><summary id="LuR-Zh55V2vW5sWPiObCC" class=""><span id="58KDcT-TJN2OSeUG_3cPJ" class="">Will Exia work for me in perimenopause?</span><img src="assets/I104_4986_16_522_16_193.svg" alt="toggle icon" class="" id="yy6dgb6L9L-36uv7PB5Al" loading="lazy"/></summary><p id="_EOLVtrb9A4afgeSnn1E6" class="">Content for "Will Exia work for me in perimenopause?"</p></details><details id="ZXd0zmUIrlVKD6Dx75LLC" class="faq-item"><summary id="hUTFS3CWR7EJLdAVmDVKk" class=""><span id="Fp3uG9zJhda72ZJ6qAOZo" class="">How soon will I see improvements after starting my treatment?</span><img src="assets/I104_4986_16_522_16_193.svg" alt="toggle icon" class="" id="StQLWRuwLUqpAIiN4O3ZR" loading="lazy"/></summary><p id="Exe6nB16w107WakNE9aDO" class="">Content for "How soon will I see improvements after starting my treatment?"</p></details><details id="WDsslxUB-5cnB5kA7vcCe" class="faq-item"><summary id="F1FHQge1Jveqh7_Wjd0Sn" class=""><span id="EQ0PhXZkHlgdnkjVQf9ZV" class="">Will HRT help me manage menopausal weight gain?</span><img src="assets/I104_4986_16_522_16_193.svg" alt="toggle icon" class="" id="Vul-yvRgSYjO7ejYjcwYP" loading="lazy"/></summary><p id="E6eOnau6Y0GhPtKtu8fzA" class="">Content for "Will HRT help me manage menopausal weight gain?"</p></details><details id="W4UkLgtOLA18mYVVLwyoJ" class="faq-item"><summary id="D6cMdo8lTQKZ1gLgzz3CT" class=""><span id="720ONJyhkfGDO9BBQklHz" class="">How does Exia compare to an in-person visit?</span><img src="assets/I104_4986_16_522_16_193.svg" alt="toggle icon" class="" id="UfPLx8AcIIthZyKUAm2xh" loading="lazy"/></summary><p id="2m-aQ2DhNuI6h0En_cs2u" class="">Content for "How does Exia compare to an in-person visit?"</p></details><details id="m03of2QbzadvqPXmEZ7g1" class="faq-item"><summary id="X1vEKCGdqY2bizXbz5u2A" class=""><span id="azBkw1JDyq1wa_5V6U1X-" class="">Does Exia accept insurance?</span><img src="assets/I104_4986_16_522_16_193.svg" alt="toggle icon" class="" id="AlTBLeV1mxNkKmNMfp-tx" loading="lazy"/></summary><p id="xvHeF8ti9Bu98yWU2K3U-" class="">Content for "Does Exia accept insurance?"</p></details></div><a id="KPD39Sizfg3ki_cBzcxoh" class="btn btn-primary" href="#" target="_self">EXPLORE OUR HELP CENTER</a></div></section><section id="cta" class="cta-section"><div id="0EH51rfA2iUKtpMXzYS-9" class="container cta-container"><h2 id="0k4cjwzr_174xW6BnCUpN" class="cta-title cyx7lv7 c-lkq7ui">Formulated By Leading Doctors To Relieve Menopause Symptoms Naturally</h2><div id="wwU_8-uO9bkeYSYV6KSEU" class="cta-content-wrapper"><div id="WxAi35cW31hGeK-fJftlZ" class="cta-image-wrapper"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Exia product lineup" class="cta-image" id="j4rzQR7VXo2vbnRKczxb5" loading="lazy"/></div><div id="A-MtsN0jxTWzrqpRBWR_l" class="cta-info"><div id="iADP5CSqwcC2vIL8MO7fB" class="cta-logo"><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Exia Health icon" class="hide-mobile" id="lKyEarTSbSdqX874ueGp0" loading="lazy"/><img src="assets/exia-health-logo.png" alt="Exia Health icon" class="hide-desktop" id="vJB4K7M1-ReBM6XFw-UvT" loading="lazy"/><span id="UJwseiTTqhnsRiUuNqn-0" class="">Exia Health</span></div><div id="Skrn17pPC7c2kEuOl39f4" class="cta-text"><div id="2Gdvbfgc-wjkGjVamIUPg" class="cta-subtitle"><span id="CONDivCSJ8GXDjjE3QpJn" class="">100% DOCTOR-GUIDED,</span><br id="efnC5iYj9eg_jllqiMdo5" class=""/><span id="DDGwPvGy6tfCv0RdutjfQ" class="">PERSONALIZED TREATMENT</span></div><div id="mukLYF2K8gn980MuX_yUX" class="cta-actions"><a id="dDjHHFbB4HGHqso_iQy-q" class="btn btn-primary" href="#" target="_self">ORDER NOW & SAVE 70%</a><div id="ZS24PJp8trRx1Hi7T_tZy" class="cta-caption-group"><p id="LRz-vX5JrRHoc3WuRjK9X" class="cta-caption-small">By Board-Certified Experts in Women's Health</p><p id="kh09-2qMKNh2izOz_hZHa" class="cta-caption-bold">Free Shipping | 90-Day Money-Back Guarantee</p></div></div></div></div></div></div></section><footer id="footer" class="footer-section"><div id="5IEJwCgKRNCBXUJFI1jBa" class="container footer-container"><div id="yd8vwT3tV4sVjjvZFodwB" class="footer-links"><div id="Xd-ekPDuLW4Dpx8qBsqEG" class=""><img src="assets/82e9dde447ddef4387ee5d9c348072caae2093ad.png" alt="Exia Logo" class="footer-logo" id="VYo1hTcJnjojE_1RaU1D3" loading="lazy"/></div><div id="B4ocEBmdOnMJdY9_BeZ68" class="link-column"><h4 id="tbHXB_7yX9zyLChCBfZyh" class="">LEARN</h4><ul id="j5BBGquxWGIv3QognSZtD" class="c-oaxxat cxpk1f6 cruvoz0 czlg0x c1ao2d4"><li id="MhuqubGmu_D82eTpcVb-l" class="c-oaxxat c7l9c6s cruuezy"><a id="O0JThptQm4uHeAIW_tnvc" class="" href="#" target="_self">About HRT</a></li><li id="R27gpSGIn8nCkSnYHaKZD" class="c-oaxxat c7l9c6s cruuezy"><a id="nd9jwtZSx-Op96BDuTbO6" class="" href="#" target="_self">How it works</a></li><li id="Wl5g4b60RhSxgRJmPsRo7" class="c-oaxxat c7l9c6s cruuezy"><a id="ZsbDckkm1sMuJZf5k9dDx" class="" href="#" target="_self">FAQ</a></li></ul></div><div id="S4hauFnCarwEmd81TyptV" class="link-column"><h4 id="mJPQ9CMjvufn1vy_LewSp" class="">COMPANY</h4><ul id="nWAClfHYOxrtR2dBO3B_m" class="c-oaxxat cxpk1f6 cruvoz0 czlg0x c1ao2d4"><li id="ex1wqKiUKi7TedfjJP1jO" class="c-oaxxat c7l9c6s cruuezy"><a id="uMNQD35cd46QMHChQNZ_9" class="" href="#" target="_self">About us</a></li><li id="uTjBi21Ryp12_I3yr02eh" class="c-oaxxat c7l9c6s cruuezy"><a id="PrS64Fcr0L3ZXesxSiPl5" class="" href="#" target="_self">Providers</a></li><li id="QILiCYsTnpi5hgEgUQ7pg" class="c-oaxxat c7l9c6s cruuezy"><a id="yYwF84PS4uUhiuVibMnJk" class="" href="#" target="_self">Contact</a></li></ul></div><div id="8_DoCDhmIpXZTJXcgvhot" class="link-column"><h4 id="R2S94OFGOq58-mZxNoZZD" class="">LEGAL</h4><ul id="tFITioyGUyksf3wTHITpY" class="c-oaxxat cxpk1f6 cruvoz0 czlg0x c1ao2d4"><li id="mIzaNq1yV0BQ1MqbvQT-A" class="c-oaxxat c7l9c6s cruuezy"><a id="M9XPyjC6zknWqrOtp-Ccf" class="" href="#" target="_self">Privacy Policy</a></li><li id="wZDSLdgrN7LSU7FHerzqQ" class="c-oaxxat c7l9c6s cruuezy"><a id="nSNp7QKMzmPtApDjU7dOR" class="" href="#" target="_self">Terms of Service</a></li><li id="uPO--kuQNavN3zFlobp2_" class="c-oaxxat c7l9c6s cruuezy"><a id="JljuQChsStrXapxBeE7-W" class="" href="#" target="_self">Telehealth Consent</a></li></ul></div><div id="iRcZ94tY92JDYoarzT1GZ" class="legit-seal"></div></div><div id="7a90N66W7Nzt-_gAXf4TP" class="footer-copyright"><p id="nHhmoGiMuj3b_p5nEQUDs" class="">© 2026 EXIA. All rights reserved.</p></div></div></footer></div></div></div><script src="https://stdigitalmvmtdev001.blob.core.windows.net/libs/mvmt-latest.develop.js.min.js"></script><script src="scripts/test.js"></script><script src="scripts/pageBuilder/page/checkout/checkout.js"></script><script>document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+        const cookiesBannner = document.querySelector("[data-cookie-banner]");
+        const buttons = document
+            .querySelector("[data-cookie-btns]")
+            .querySelectorAll("button");
+        buttons.forEach((btn) =>
+            btn.addEventListener("click", () => {
+                cookiesBannner.style.display = "none";
+            })
+        );
+        console.log("TESTEEEEEE")
+    }, 5000);
+});
+</script>
+<script type="application/json" id="page-config">
+{
+  "campaignId": "39",
+  "pageType": "Home",
+  "funnelId": "6a1586a4bff194ea998bfda5",
+  "locale": "US"
+}
+</script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      setTimeout(() => {
+        const cookiesBanner = document.querySelector("[data-cookie-banner]");
+        const cookieAcceptButton = document.querySelector("[data-cookie-accept-button]");
+        const cookieRejectButton = document.querySelector("[data-cookie-reject-button]");
+
+        if (!(cookiesBanner && cookieAcceptButton && cookieRejectButton)) return;
+
+        const cookieDependentScripts = [];
+        const cookiesAnswer = sessionStorage.getItem("cookiesAnswer");
+
+        if (cookiesAnswer === "accepted" || cookiesAnswer === "rejected") {
+          cookiesBanner.style.display = "none";
+          injectTrackingScripts();
+        } else {
+          cookiesBanner.style.display = "flex";
+        }
+
+        cookieAcceptButton.addEventListener("click", () => {
+          sessionStorage.setItem("cookiesAnswer", "accepted");
+          cookiesBanner.style.display = "none";
+          if (cookieDependentScripts.length > 0) injectTrackingScripts()
+        });
+
+        cookieRejectButton.addEventListener("click", () => {
+          sessionStorage.setItem("cookiesAnswer", "rejected");
+          cookiesBanner.style.display = "none";
+        });
+
+        function injectTrackingScripts() {
+          cookieDependentScripts.forEach((script) => {
+            if (script.src) {
+              const scriptElement = document.createElement("script");
+              scriptElement.src = script.src;
+              scriptElement.async = true;
+              document.head.appendChild(scriptElement);
+            } else if (script.text) {
+              const scriptElement = document.createElement("script")
+              scriptElement.innerHTML = script.text;
+              document.head.appendChild(scriptElement);
+            }
+          })
+        }
+      }, 500);
+    });
+  </script>
+  </body></html>
